@@ -1,0 +1,22 @@
+{
+  "name": "train-dict",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Тренажёр слов: задача человека -> набор слов -> карточки -> FSRS",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "ts-fsrs": "^5.4.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "playwright-core": "^1.61.1",
+    "vitest": "^4.1.10"
+  }
+}
