@@ -27,6 +27,7 @@ const el = {
   btnRegenerate: $('btn-regenerate'),
 
   cardKind: $('card-kind'),
+  cardExtra: $('card-extra'),
   cardCounter: $('card-counter'),
   cardPrompt: $('card-prompt'),
   cardAnswer: $('card-answer'),
@@ -37,9 +38,12 @@ const el = {
   gradeRow: $('grade-row'),
   btnFail: $('btn-fail'),
   btnOk: $('btn-ok'),
+  btnEnough: $('btn-enough'),
 
   doneWhen: $('done-when'),
   doneProgress: $('done-progress'),
+  doneDock: $('done-dock'),
+  btnAgain: $('btn-again'),
 };
 
 let current = null; // карточка, которую человек видит прямо сейчас
@@ -184,12 +188,16 @@ function renderStudy(view) {
     el.doneWhen.textContent = comeback(view.nextDueAt);
     const { touched, total } = view.progress;
     el.doneProgress.textContent = `Пройдено карточек: ${touched} из ${total}`;
+    // Ждать следующего дня необязательно — пройденное можно пройти ещё раз.
+    el.doneDock.hidden = touched === 0;
     scheduleRecheck(view.nextDueAt);
     show('done');
     return;
   }
 
   el.cardKind.textContent = KIND[current.type];
+  el.cardExtra.hidden = !view.extra;
+  el.btnEnough.hidden = !view.extra;
   el.cardCounter.textContent = `осталось ${view.remaining}`;
   el.cardPrompt.textContent = current.prompt;
 
@@ -343,6 +351,17 @@ const answer = (ok) =>
 
 el.btnOk.addEventListener('click', answer(true));
 el.btnFail.addEventListener('click', answer(false));
+
+// Лишний заход: пройти уже пройденное, не дожидаясь следующего дня.
+el.btnAgain.addEventListener(
+  'click',
+  guard(async () => renderStudy(await api('/api/study/again', {}))),
+);
+
+el.btnEnough.addEventListener(
+  'click',
+  guard(async () => renderStudy(await api('/api/study/again/stop', {}))),
+);
 
 // Пробел показывает ответ, 1 / 2 оценивают — для тех, кто с клавиатуры.
 // event.repeat: зажатая клавиша не должна сыпать оценками.

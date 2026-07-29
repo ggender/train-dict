@@ -20,6 +20,14 @@ const PUBLIC_DIR = join(fileURLToPath(new URL('.', import.meta.url)), 'public');
  */
 let picking = false;
 
+/**
+ * Лишний заход: человек решил пройти уже пройденные слова, не дожидаясь срока.
+ * Очередь такого захода — `{ ids }`, первый в списке и есть карточка перед человеком.
+ * Держим в памяти, как и подбор: это про «здесь и сейчас», а не про ход, который надо
+ * помнить между заходами. Сроки повторений этот заход не двигает — их считает FSRS.
+ */
+let extra = null;
+
 const snapshot = (state) => ({
   stage: state.stage,
   picking,
@@ -33,9 +41,16 @@ const snapshot = (state) => ({
 });
 
 const studyView = (state) => {
+  if (extra) {
+    const card = state.cards.find((c) => c.id === extra.ids[0]);
+    return { card, remaining: extra.ids.length, nextDueAt: null, extra: true, progress: progress(state) };
+  }
   const { card, remaining, nextDueAt } = queue(state);
-  return { card, remaining, nextDueAt, progress: progress(state) };
+  return { card, remaining, nextDueAt, extra: false, progress: progress(state) };
 };
+
+/** Пройденные карточки — те, что человек уже видел. Новые лишний заход не открывает. */
+const passedCards = (state) => state.cards.filter((c) => c.firstSeenAt);
 
 // ----------------------------------------------------------------- ручки
 
@@ -102,6 +117,7 @@ const routes = {
     state.cards = cards;
     state.proposal = null;
     state.stage = 'study';
+    extra = null; // карточек прежнего набора больше нет
     await store.save();
     return studyView(state);
   },
@@ -112,10 +128,42 @@ const routes = {
     return studyView(state);
   },
 
+  /**
+   * Человек хочет пройти слова ещё раз, не дожидаясь следующего дня.
+   * Даём ему то, что он уже проходил, отдельной очередью поверх расписания.
+   */
+  'POST /api/study/again': async () => {
+    const state = store.get();
+    if (state.stage !== 'study') throw new AppError('Набор ещё не подтверждён.', 409);
+    // Заход уже идёт или по расписанию и так есть что показать — лишний не нужен.
+    if (extra || queue(state).card) return studyView(state);
+
+    const passed = passedCards(state);
+    if (passed.length === 0) throw new AppError('Проходить пока нечего.', 409);
+
+    extra = { ids: passed.map((c) => c.id) };
+    return studyView(state);
+  },
+
+  'POST /api/study/again/stop': async () => {
+    extra = null;
+    return studyView(store.get());
+  },
+
   'POST /api/study/answer': async (body) => {
     const state = store.get();
     const card = state.cards.find((c) => c.id === body?.id);
     if (!card) throw new AppError('Карточка не найдена.', 404);
+
+    // Лишний заход человек затеял сам, сверх расписания: сроки повторений он не двигает,
+    // и пройденное по нему не считается. Провал возвращается в конец этого же захода.
+    if (extra) {
+      if (extra.ids[0] !== card.id) return studyView(state); // эту карточку уже оценили
+      extra.ids.shift();
+      if (body.ok !== true) extra.ids.push(card.id);
+      if (extra.ids.length === 0) extra = null;
+      return studyView(state);
+    }
 
     // Оценка приходит с номером показа, который человек видел. Если карточку уже оценили —
     // вторым нажатием или из другого окна, — номер устарел, и второй раз она не считается.
@@ -132,7 +180,10 @@ const routes = {
     return studyView(state);
   },
 
-  'POST /api/reset': async () => snapshot(await store.reset()),
+  'POST /api/reset': async () => {
+    extra = null;
+    return snapshot(await store.reset());
+  },
 };
 
 // -------------------------------------------------------------- транспорт

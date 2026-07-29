@@ -55,7 +55,10 @@
       <section id="screen-study" class="screen" hidden>
         <header class="bar bar-thin">
           <span class="kind" id="card-kind"></span>
-          <span class="counter" id="card-counter"></span>
+          <span class="counter">
+            <span class="mark" id="card-extra" hidden>ещё раз</span>
+            <span id="card-counter"></span>
+          </span>
         </header>
 
         <div class="scroll center">
@@ -72,6 +75,7 @@
             <button class="btn btn-fail" id="btn-fail">Не справился</button>
             <button class="btn btn-ok" id="btn-ok">Справился</button>
           </div>
+          <button class="btn btn-ghost" id="btn-enough" hidden>Хватит</button>
         </div>
       </section>
 
@@ -81,6 +85,11 @@
           <p class="done-title">На сегодня всё</p>
           <p class="done-when" id="done-when"></p>
           <p class="hint" id="done-progress"></p>
+        </div>
+
+        <!-- Пройти нечего, пока человек не прошёл ни одной карточки: тогда и полки нет -->
+        <div class="dock" id="done-dock" hidden>
+          <button class="btn btn-ghost" id="btn-again">Пройти слова ещё раз</button>
         </div>
       </section>
     </div>

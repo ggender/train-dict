@@ -50,6 +50,13 @@ export async function openStudy(page, app, state) {
   await expect(page.locator('#screen-study')).toBeVisible();
 }
 
+/** Подложить состояние и открыть тренажёр на экране «на сегодня всё». */
+export async function openDone(page, app, state) {
+  await app.seed(state);
+  await open(page, app);
+  await expect(page.locator('#screen-done')).toBeVisible();
+}
+
 /** Оценить открытую карточку. */
 export async function grade(page, ok) {
   await page.locator('#btn-reveal').click();
