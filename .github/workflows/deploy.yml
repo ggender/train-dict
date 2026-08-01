@@ -1,0 +1,50 @@
+name: Прод
+
+on:
+  push:
+    branches: [main]
+
+# Прод обновляется по одному. Следующий запуск ждёт, пока закончится текущий:
+# иначе более старый деплой может лечь поверх более нового.
+concurrency:
+  group: prod
+  cancel-in-progress: false
+
+jobs:
+  # Те же тесты, что на PR, — берутся из test.yml, а не переписаны заново.
+  test:
+    uses: ./.github/workflows/test.yml
+
+  migrate:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Применить миграции
+        run: ./scripts/migrate.sh
+
+  deploy:
+    needs: migrate
+    runs-on: ubuntu-latest
+
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Забрать настройки проекта
+        run: npx vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Собрать
+        run: npx vercel@latest build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Выкатить в прод
+        run: npx vercel@latest deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

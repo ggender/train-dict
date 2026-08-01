@@ -1,9 +1,10 @@
 name: Тесты
 
 on:
-  push:
-    branches: [main]
   pull_request:
+  # Те же тесты — первая ступень конвейера прода (deploy.yml).
+  # Правило main переехало туда, чтобы на push тесты не шли дважды.
+  workflow_call:
 
 jobs:
   test:
