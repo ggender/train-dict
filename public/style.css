@@ -310,6 +310,30 @@ body {
   border-color: var(--fail);
 }
 
+/* Наведение — только там, где есть настоящий курсор: на тач-экране :hover залипает после нажатия */
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled),
+  .btn-ok:hover:not(:disabled),
+  .btn-send:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  .btn-fail:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--fail) 12%, transparent);
+  }
+}
+
+/* Видно, где клавиатура: на карточках есть горячие клавиши, до кнопок доходят табом */
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .grade {
   display: grid;
   grid-template-columns: 1fr 1fr;
