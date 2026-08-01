@@ -364,6 +364,16 @@ body {
   font-size: 15px;
   z-index: 20;
   box-shadow: 0 8px 28px rgb(0 0 0 / 0.3);
+  /* Появление само перезапускается: слой каждый раз приходит из display: none */
+  animation: toast-rise 0.18s ease-out;
+}
+
+@keyframes toast-rise {
+  from {
+    opacity: 0;
+    /* сдвиг по X тот же, что в .toast, иначе подсказка прыгнет вбок */
+    transform: translate(-50%, 8px);
+  }
 }
 
 .busy {
@@ -378,6 +388,13 @@ body {
   text-align: center;
   background: color-mix(in srgb, var(--bg) 78%, transparent);
   z-index: 30;
+  animation: overlay-fade 0.15s ease-out;
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
 }
 
 .busy .hint:empty {
