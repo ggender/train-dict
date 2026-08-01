@@ -7,6 +7,8 @@
   --line: #2f343d;
   --accent: #d9a441;
   --accent-ink: #241b06;
+  --primary: #4fb96a;
+  --primary-ink: #06210e;
   --ok: #6aa96f;
   --ok-ink: #0f1a11;
   --fail: #d97a7a;
@@ -24,6 +26,8 @@
     --line: #e2dcd3;
     --accent: #8a5f10;
     --accent-ink: #fff;
+    --primary: #1f7a3f;
+    --primary-ink: #fff;
     --ok: #2f6b3a;
     --ok-ink: #fff;
     --fail: #a83a3a;
@@ -284,8 +288,8 @@ body {
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--primary);
+  color: var(--primary-ink);
 }
 
 .btn-ghost {
@@ -339,8 +343,8 @@ body {
 .btn-send {
   width: 52px;
   flex: none;
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--primary);
+  color: var(--primary-ink);
   font-size: 22px;
   line-height: 1;
 }
