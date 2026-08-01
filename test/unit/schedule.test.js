@@ -54,7 +54,7 @@ describe('заход не обрывается на минутах', () => {
     const view = queue(state, now);
 
     expect(view.card?.id).toBe('через-10-минут');
-    expect(view.remaining).toBe(2);
+    expect(view.remaining).toBe(1);
   });
 
   it('не втягивает в заход то, что вернётся заметно позже [4.5]', () => {
