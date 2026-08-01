@@ -7,3 +7,6 @@ test-results/
 .claude/
 .vercel
 .env*
+
+# Local Netlify folder
+.netlify

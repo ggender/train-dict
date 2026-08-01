@@ -1,0 +1,3 @@
+# Сборки нет: статика лежит в public/, API — функция netlify/functions/api.mjs.
+[build]
+  publish = "public"
